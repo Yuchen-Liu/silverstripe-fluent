@@ -116,6 +116,19 @@ class Fluent extends Object implements TemplateGlobalProvider {
 		if(empty($locale) && isset($_REQUEST[self::config()->query_param])) {
 			$locale = $_REQUEST[self::config()->query_param];
 		}
+		
+		if(empty($locale) && self::is_frontend()){
+			//get the locate from the domain
+			$domain = strtolower($_SERVER['HTTP_HOST']);
+		
+			// Check for a domain specific default locale
+			if($domain && ($domains = self::domains()) && !empty($domains[$domain])) {
+				$info = $domains[$domain];
+				if(!empty($info['default_locale'])) $locale = $info['default_locale'];
+				// With no explicitly set default_locale use the first locale assigned
+				if(!empty($info['locales'])) $locale = reset($info['locales']);
+			}
+		}
 
 		return $locale;
 	}
